@@ -40,6 +40,21 @@ app.use(function(req, res, next) {
   next();
 });
 
+// Autologout
+app.use( function(req, res, next) {
+  var tiempo = new Date().getTime();                           
+  req.session.tiempoInactividad = 60 ;
+  if ( req.session.tiempoUltimaTransaccion && req.session.user) {   
+      if ((tiempo-req.session.tiempoUltimaTransaccion)> req.session.tiempoInactividad*1000){
+          delete req.session.user;
+          res.redirect("/login");
+      }
+  }
+  req.session.tiempoUltimaTransaccion = tiempo;
+  res.locals.session = req.session;
+  next();
+});
+
 app.use('/', routes);
 
 // catch 404 and forward to error handler
